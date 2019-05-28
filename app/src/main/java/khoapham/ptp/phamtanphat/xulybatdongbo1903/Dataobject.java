@@ -3,6 +3,15 @@ package khoapham.ptp.phamtanphat.xulybatdongbo1903;
 public class Dataobject {
     private int A;
     private int B;
+    private int laco;
+
+    public int getLaco() {
+        return laco;
+    }
+
+    public void setLaco(int laco) {
+        this.laco = laco;
+    }
 
     public Dataobject(int a, int b) {
         A = a;

@@ -11,14 +11,13 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     Dataobject dataobject = new Dataobject(0, 0);
-    Integer laco = 0;
 
     @Override
     protected synchronized void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        dataobject.setLaco(0);
         // main : 1 luồng chính main thread
         //1 : Tạo thằng A
         //2 : Tạo thằng B
@@ -28,12 +27,13 @@ public class MainActivity extends AppCompatActivity {
         Thread thread1 = new Thread(new Runnable() {
             @Override
             public void run() {
-                synchronized (laco) {
+                synchronized (dataobject) {
                     for (int i = 0; i <= 50; i++) {
-                        if (laco == 0) {
+                        if (dataobject.getLaco() == 0) {
                             int a = new Random().nextInt(11);
                             dataobject.setA(a);
-                            laco = 2;
+                            dataobject.setLaco(2);
+                            dataobject.notifyAll();
                             Log.d("BBB", "A :" + a + " , i : " + i);
                         } else {
                             try {
@@ -51,12 +51,13 @@ public class MainActivity extends AppCompatActivity {
         Thread thread2 = new Thread(new Runnable() {
             @Override
             public void run() {
-                synchronized (laco) {
+                synchronized (dataobject) {
                     for (int i = 0; i <= 50; i++) {
-                        if (laco == 2){
+                        if (dataobject.getLaco() == 2){
                             int b = new Random().nextInt(11);
                             dataobject.setB(b);
-                            laco = 3;
+                            dataobject.setLaco(3);
+                            dataobject.notifyAll();
                             Log.d("BBB", "B :" + b + " , i : " + i);
                         }else {
                             try {
@@ -75,10 +76,12 @@ public class MainActivity extends AppCompatActivity {
         Thread thread3 = new Thread(new Runnable() {
             @Override
             public void run() {
-                synchronized (laco){
+                synchronized (dataobject){
                     for (int i = 0; i <= 50; i++) {
-                        if (laco == 3){
+                        if (dataobject.getLaco() == 3){
                             int ketqua = dataobject.tinhTong();
+                            dataobject.setLaco(0);
+                            dataobject.notifyAll();
                             Log.d("BBB", "c :" + ketqua + " , i : " + i);
                         }else{
                             try {
