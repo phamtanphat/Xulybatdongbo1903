@@ -15,7 +15,26 @@ public class MainActivity extends AppCompatActivity {
 
 
         // main : 1 luồng chính main thread
+        //1 : Tạo thằng A
+        //2 : Tạo thằng B
+        //3 : Tổng a + b
+        // for chay 0 -> 50 : A , B in gia trị random trong 0 -> 10
+        // Hiển thị giá trị thông qua log
+        Thread thread1 = new Thread();
+        Thread thread2 = new Thread();
+        Thread thread3 = new Thread();
 
+        thread1.start();
+        thread2.start();
+        thread3.start();
+
+    }
+    public synchronized void getLog(String keyword){
+        for (int i = 0 ; i<100 ; i++){
+            Log.d("BBB", keyword + " : " + i);
+        }
+    }
+    private void xulybatdongbofunction(){
         final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -40,14 +59,9 @@ public class MainActivity extends AppCompatActivity {
             }
         },3000);
         // nói về đồng bộ :
-            // phải có điểm chung
-                //1 : function
-                // 2; static function
-                // 3 ; Object
-    }
-    public synchronized void getLog(String keyword){
-        for (int i = 0 ; i<100 ; i++){
-            Log.d("BBB", keyword + " : " + i);
-        }
+        // phải có điểm chung
+        //1 : function
+        // 2; static function
+        // 3 ; Object
     }
 }
