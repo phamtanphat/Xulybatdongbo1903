@@ -11,7 +11,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     Dataobject dataobject = new Dataobject(0, 0);
-
+    int index = 0;
     @Override
     protected synchronized void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,17 +24,28 @@ public class MainActivity extends AppCompatActivity {
         //3 : Tổng a + b
         // for chay 0 -> 50 : A , B in gia trị random trong 0 -> 10
         // Hiển thị giá trị thông qua log
-        Thread thread1 = new Thread(new Runnable() {
+        //for 1 - 50
+        // A : so chan
+        // B : so le
+        // C : so chia 3 du 1
+        // D : ((sochia 3 + so le) / 2 ) + chẳn0
+        //bai 2 :
+        // A : tạo chiều dài
+        // B : tạo chiều rộng
+        //c : diện tích hình chữ nhật
+        //d : chu vi hình chữ nhật
+        final Thread thread1 = new Thread(new Runnable() {
             @Override
             public void run() {
                 synchronized (dataobject) {
-                    for (int i = 0; i <= 50; i++) {
+                    for (int i = 0; i <= 5000; ) {
                         if (dataobject.getLaco() == 0) {
+                            index = i++;
                             int a = new Random().nextInt(11);
                             dataobject.setA(a);
                             dataobject.setLaco(2);
                             dataobject.notifyAll();
-                            Log.d("BBB", "A :" + a + " , i : " + i);
+                            Log.d("BBB", "A :" + a + " , i : " + index );
                         } else {
                             try {
                                 dataobject.wait();
@@ -42,23 +53,32 @@ public class MainActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                         }
-
                     }
+                    dataobject.setLaco(4);
+                    dataobject.notifyAll();
+
                 }
 
             }
         });
-        Thread thread2 = new Thread(new Runnable() {
+        final Thread thread2 = new Thread(new Runnable() {
             @Override
             public void run() {
                 synchronized (dataobject) {
-                    for (int i = 0; i <= 50; i++) {
-                        if (dataobject.getLaco() == 2){
+                    for (; true; ) {
+                        if (dataobject.getLaco() == 2 || dataobject.getLaco()== 4){
                             int b = new Random().nextInt(11);
+                            if (dataobject.getLaco() == 4){
+                                dataobject.setB(b);
+                                dataobject.setLaco(5);
+                                dataobject.notifyAll();
+                                return;
+                            }
                             dataobject.setB(b);
                             dataobject.setLaco(3);
                             dataobject.notifyAll();
-                            Log.d("BBB", "B :" + b + " , i : " + i);
+
+                            Log.d("BBB", "B :" + b + " , i : " + index);
                         }else {
                             try {
                                 dataobject.wait();
@@ -73,16 +93,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Thread thread3 = new Thread(new Runnable() {
+        final Thread thread3 = new Thread(new Runnable() {
             @Override
             public void run() {
                 synchronized (dataobject){
-                    for (int i = 0; i <= 50; i++) {
-                        if (dataobject.getLaco() == 3){
+                    for (; true;) {
+                        if (dataobject.getLaco() == 3 || dataobject.getLaco() == 5){
                             int ketqua = dataobject.tinhTong();
+                            if (dataobject.getLaco() == 5){
+                                Log.d("BBB", "c :" + ketqua + " , i : " + index);
+                                return;
+                            }
                             dataobject.setLaco(0);
                             dataobject.notifyAll();
-                            Log.d("BBB", "c :" + ketqua + " , i : " + i);
+                            Log.d("BBB", "c :" + ketqua + " , i : " + index);
                         }else{
                             try {
                                 dataobject.wait();
@@ -96,11 +120,20 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-        thread1.start();
         thread2.start();
         thread3.start();
+        thread1.start();
 
+
+        Handler handler= new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("CCC","Thread A "+ thread1.getState().name());
+                Log.d("CCC","Thread B "+ thread2.getState().name());
+                Log.d("CCC","Thread C "+ thread3.getState().name());
+            }
+        },3000);
     }
 
     public synchronized void getLog(String keyword) {
