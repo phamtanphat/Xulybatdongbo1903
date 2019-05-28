@@ -10,7 +10,9 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    Dataobject dataobject = new Dataobject(0,0);
+    Dataobject dataobject = new Dataobject(0, 0);
+    Integer laco = 0;
+
     @Override
     protected synchronized void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,31 +28,69 @@ public class MainActivity extends AppCompatActivity {
         Thread thread1 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0 ; i <= 50 ; i++){
-                    int a = new Random().nextInt(11);
-                    dataobject.setA(a);
-                    Log.d("BBB", "A :"+  a + " , i : "+ i);
+                synchronized (laco) {
+                    for (int i = 0; i <= 50; i++) {
+                        if (laco == 0) {
+                            int a = new Random().nextInt(11);
+                            dataobject.setA(a);
+                            laco = 2;
+                            Log.d("BBB", "A :" + a + " , i : " + i);
+                        } else {
+                            try {
+                                dataobject.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
                 }
+
             }
         });
         Thread thread2 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0 ; i <= 50 ; i++){
-                    int b = new Random().nextInt(11);
-                    dataobject.setB(b);
-                    Log.d("BBB", "B :"+  b + " , i : "+ i);
+                synchronized (laco) {
+                    for (int i = 0; i <= 50; i++) {
+                        if (laco == 2){
+                            int b = new Random().nextInt(11);
+                            dataobject.setB(b);
+                            laco = 3;
+                            Log.d("BBB", "B :" + b + " , i : " + i);
+                        }else {
+                            try {
+                                dataobject.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
                 }
+
             }
         });
 
         Thread thread3 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0 ; i <= 50 ; i++){
-                    int ketqua = dataobject.tinhTong();
-                    Log.d("BBB", "c :"+  ketqua + " , i : "+ i);
+                synchronized (laco){
+                    for (int i = 0; i <= 50; i++) {
+                        if (laco == 3){
+                            int ketqua = dataobject.tinhTong();
+                            Log.d("BBB", "c :" + ketqua + " , i : " + i);
+                        }else{
+                            try {
+                                dataobject.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
                 }
+
             }
         });
 
@@ -59,12 +99,14 @@ public class MainActivity extends AppCompatActivity {
         thread3.start();
 
     }
-    public synchronized void getLog(String keyword){
-        for (int i = 0 ; i<100 ; i++){
+
+    public synchronized void getLog(String keyword) {
+        for (int i = 0; i < 100; i++) {
             Log.d("BBB", keyword + " : " + i);
         }
     }
-    private void xulybatdongbofunction(){
+
+    private void xulybatdongbofunction() {
         final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -84,10 +126,10 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.d("BBB","Trang thái A "+ thread.getState().name());
-                Log.d("BBB", "Trang thái b "+thread1.getState().name());
+                Log.d("BBB", "Trang thái A " + thread.getState().name());
+                Log.d("BBB", "Trang thái b " + thread1.getState().name());
             }
-        },3000);
+        }, 3000);
         // nói về đồng bộ :
         // phải có điểm chung
         //1 : function
